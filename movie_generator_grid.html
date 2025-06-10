@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Generator Grid Layout</title>
+</head>
+<body>
+  <button onclick="generateMovie()">Generate Movie</button>
+  <div id="downloads"></div>
+  <canvas id="frameCanvas" width="320" height="180" style="display:none;"></canvas>
+
+  <script>
+    const frameWidth = 320;
+    const frameHeight = 180;
+    const framesPerImage = 10;
+    const columns = 5;
+    const rows = 2;
+
+    function generateFrame(ctx, index) {
+      ctx.fillStyle = '#222';
+      ctx.fillRect(0, 0, frameWidth, frameHeight);
+
+      // Draw characters (simple stick figures)
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(80, 100, 20, 0, Math.PI * 2); // character 1 head
+      ctx.fill();
+      ctx.fillRect(75, 120, 10, 30);       // character 1 body
+
+      ctx.beginPath();
+      ctx.arc(240, 100, 20, 0, Math.PI * 2); // character 2 head
+      ctx.fill();
+      ctx.fillRect(235, 120, 10, 30);       // character 2 body
+
+      // Draw dialogue text
+      ctx.fillStyle = '#0f0';
+      ctx.font = '14px Arial';
+      let dialogue = getDialogue(index);
+      ctx.fillText(dialogue, 10, 30);
+    }
+
+    function getDialogue(index) {
+      const lines = [
+        "Hey, are you ready?",
+        "Yeah, let's go!",
+        "What's the plan?",
+        "We sneak in at night.",
+        "Sounds risky...",
+        "Trust me, it’ll work.",
+        "Alright, I’m in.",
+        "Get your gear ready.",
+        "Let’s move!",
+        "Now or never!",
+        "We’re inside.",
+        "Stay quiet.",
+        "Almost there.",
+        "I see the target.",
+        "Take the shot!",
+        "Got it!",
+        "Time to run!",
+        "This way!",
+        "We made it.",
+        "Mission complete!"
+      ];
+      return lines[index] || "";
+    }
+
+    function generateMovie() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = frameWidth * columns; // 320 * 5 = 1600
+      canvas.height = frameHeight * rows;  // 180 * 2 = 360
+
+      document.getElementById('downloads').innerHTML = ''; // clear previous links
+
+      for (let i = 0; i < 2; i++) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let j = 0; j < framesPerImage; j++) {
+          const frameIndex = i * framesPerImage + j;
+
+          // Draw single frame on hidden canvas
+          const frameCanvas = document.getElementById('frameCanvas');
+          const fctx = frameCanvas.getContext('2d');
+          fctx.clearRect(0, 0, frameWidth, frameHeight);
+          generateFrame(fctx, frameIndex);
+
+          // Calculate position in grid
+          const col = j % columns;
+          const row = Math.floor(j / columns);
+          const dx = col * frameWidth;
+          const dy = row * frameHeight;
+
+          ctx.drawImage(frameCanvas, dx, dy);
+        }
+
+        // Create download link for the image
+        const link = document.createElement('a');
+        link.download = `movie_part${i + 1}.png`;
+        link.href = canvas.toDataURL();
+        link.textContent = `Download movie_part${i + 1}.png`;
+        link.style.display = 'block';
+        document.getElementById('downloads').appendChild(link);
+      }
+    }
+  </script>
+</body>
+</html>
